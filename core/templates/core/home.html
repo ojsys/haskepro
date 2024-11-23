@@ -1,0 +1,458 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Slider -->
+<div id="heroCarousel" class="carousel slide br-5" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        {% for slide in slides %}
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" 
+                    {% if forloop.first %}class="active"{% endif %}></button>
+        {% endfor %}
+    </div>
+    
+    <div class="carousel-inner br-5">
+        {% for slide in slides %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <img src="{{ slide.image.url }}" class="d-block w-100" alt="{{ slide.title }}">
+            <div class="carousel-caption">
+                {% if slide.description %}<p>{{ slide.description }}</p>{% endif %}
+                <h1>{{ slide.title }}</h1>
+                {% if slide.subtitle %}<h3>{{ slide.subtitle }}</h3>{% endif %}
+                <div class="row mb-4"></div>
+                {% if slide.button_text %}
+                    <a href="{{ slide.button_link }}" class="btn btn-primary">{{ slide.button_text }}</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Church Impact Section -->
+<section class="explore-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>Explore Unreached People</h2>
+                <p>Click on any state to see detailed statistics about unreached people groups and our ministry impact.</p>
+                
+                <!-- State Statistics Card (initially hidden) -->
+                <div id="state-stats" class="card mt-4" style="display: none;">
+                    <div class="card-body">
+                        <h3 id="state-name"></h3>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Villages</span>
+                                <span id="village-count" class="stat-value"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">People Groups</span>
+                                <span id="people-groups" class="stat-value"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Population</span>
+                                <span id="total-population" class="stat-value"></span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Converts</span>
+                                <span id="converts" class="stat-value"></span>
+                            </div>
+                        </div>
+                        <div class="religious-breakdown mt-3">
+                            <h5>Religious Breakdown</h5>
+                            <div class="progress-stats">
+                                <div class="stat-row">
+                                    <span>Christians</span>
+                                    <div class="progress">
+                                        <div id="christian-progress" class="progress-bar" role="progressbar"></div>
+                                    </div>
+                                    <span id="christian-percentage"></span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Muslims</span>
+                                    <div class="progress">
+                                        <div id="muslim-progress" class="progress-bar" role="progressbar"></div>
+                                    </div>
+                                    <span id="muslim-percentage"></span>
+                                </div>
+                                <div class="stat-row">
+                                    <span>Traditional</span>
+                                    <div class="progress">
+                                        <div id="traditional-progress" class="progress-bar" role="progressbar"></div>
+                                    </div>
+                                    <span id="traditional-percentage"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <!-- Nigeria Map Container -->
+                <div id="nigeria-map" class="map-container"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ministry Section -->
+<section class="ministry-section py-5 bg-white">
+    <div class="container">
+        <h3 class="mb-5 text-center">What We Do</h3>
+        <!-- Preamble -->
+        {% if ministry_section %}
+        <div class="row mb-5 mt-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title">{{ ministry_section.title }}</h2>
+                <p class="section-description">{{ ministry_section.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Ministry Content -->
+        <div class="row align-items-center mb-5">
+            {% if ministry_section and ministry_section.image %}
+            <div class="col-lg-6 ministry-image-col">
+                <div class="ministry-image-wrapper h-100">
+                    <img src="{{ ministry_section.image.url }}" alt="Ministry Work" class="ministry-image">
+                </div>
+            </div>
+            {% endif %}
+            <div class="col-lg-6">
+                
+                <div class="ministry-grid">
+                    {% for ministry in ministries %}
+                    <div class="ministry-item">
+                        <div class="ministry-icon-wrapper">
+                            {% if ministry.icon %}
+                                <img src="{{ ministry.icon.url }}" alt="{{ ministry.title }}" class="ministry-icon">
+                            {% endif %}
+                        </div>
+                        <div class="ministry-content">
+                            <h3>{{ ministry.title }}</h3>
+                            <p>{{ ministry.description }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Achievement Section -->
+<section class="achievement-section py-5" style="background-color: #e6f2ff;">
+    <div class="container">
+        <h2 class="text-center mb-5">What We Have Achieved</h2>
+        <div class="row text-center mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="achievement-item">
+                    <h3>{{ achievement.villages }}</h3>
+                    <p>Villages</p>
+                    <small>{{ achievement.villages_description }}</small>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="achievement-item">
+                    <h3>{{ achievement.people }}</h3>
+                    <p>People Saved</p>
+                    <small>{{ achievement.people_description }}</small>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="achievement-item">
+                    <h3>{{ achievement.reached }}</h3>
+                    <p>Reached</p>
+                    <small>{{ achievement.reached_description }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">What You Can Do</h2>
+        <div class="row g-4 mt-5">
+            <div class="col-md-6">
+                <div class="action-card h-100">
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="card-title mb-4">As a Christian</h4>
+                        <ul class="list-unstyled action-list flex-grow-1">
+                            <li class="mb-4">
+                                <i class="fas fa-pray fa-lg me-3"></i>
+                                <span>You can pray</span>
+                            </li>
+                            <li class="mb-4">
+                                <i class="fas fa-hands-helping fa-lg me-3"></i>
+                                <span>You can volunteer</span>
+                            </li>
+                            <li>
+                                <i class="fas fa-gift fa-lg me-3"></i>
+                                <span>You can give financially towards sponsoring/supporting this ministry</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="gallery-grid" id="gallery">
+                    {% for item in gallery_items %}
+                    <a 
+                        class="gallery-item" 
+                        href="{{ item.image.url }}"
+                        data-pswp-width="{{ item.image.width }}"
+                        data-pswp-height="{{ item.image.height }}"
+                        target="_blank">
+                        <img src="{{ item.image.url }}" alt="{{ item.title }}" class="img-fluid">
+                        <div class="gallery-overlay">
+                            <i class="fas fa-expand"></i>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h3>Register now so you don't miss our programs</h3>
+            </div>
+            <div class="col-md-6">
+                <form class="d-flex">
+                    <input type="email" class="form-control me-2" placeholder="Enter your email">
+                    <button type="submit" class="btn btn-light">Subscribe Now</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    /* Hero Carousel Styles */
+    .carousel-item {
+        height: 600px;
+    }
+    .carousel-item img {
+        object-fit: cover;
+        height: 100%;
+    }
+    .carousel-caption {
+        background: rgba(0, 0, 0, 0.5);
+        padding: 2rem;
+        border-radius: 10px;
+    }
+
+    /* Statistics Styles */
+    .statistics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    .stat-item {
+        text-align: center;
+        padding: 1rem;
+    }
+
+    /* Ministry Icons */
+    .ministry-icon {
+        width: 30px;
+        height: 30px;
+        object-fit: contain;
+    }
+    .ministry-image-wrapper {
+        height: 100%;
+    }
+
+    .ministry-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .ministry-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 991.98px) {
+        .ministry-image-wrapper {
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+    }
+
+    /* Achievement Items */
+    .achievement-item {
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .achievement-item h3 {
+        font-size: 2.5rem;
+        color: #007bff;
+    }
+
+    /* Gallery Grid */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 1rem;
+        height: 100%;
+    }
+    .gallery-item {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    }
+
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .gallery-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .gallery-overlay i {
+        color: white;
+        font-size: 2rem;
+        transform: scale(0.5);
+        transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover img {
+        transform: scale(1.1);
+    }
+
+    .gallery-item:hover .gallery-overlay {
+        opacity: 1;
+    }
+
+    .gallery-item:hover .gallery-overlay i {
+        transform: scale(1);
+    }
+    
+
+    /* Newsletter Section */
+    .newsletter-section {
+        background-color: #007bff;
+    }
+
+    
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .stat-item {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .stat-label {
+        display: block;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .stat-value {
+        display: block;
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .religious-breakdown .stat-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .religious-breakdown .progress {
+        flex: 1;
+        margin: 0 10px;
+        height: 8px;
+    }
+
+    .state-tooltip {
+        background: rgba(0, 0, 0, 0.8);
+        border: none;
+        border-radius: 3px;
+        color: white;
+        font-weight: bold;
+        padding: 5px 10px;
+    }
+</style>
+{% endblock %}
+
+{% block js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: '#gallery',
+        children: 'a',
+        pswpModule: PhotoSwipe,
+        padding: { top: 20, bottom: 20, left: 20, right: 20 },
+        bgOpacity: 0.85,
+    });
+    lightbox.init();
+});
+</script>
+
+
+<!-- Keep your existing PhotoSwipe initialization -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const lightbox = new PhotoSwipeLightbox({
+        gallery: '#gallery',
+        children: 'a',
+        pswpModule: PhotoSwipe,
+        padding: { top: 20, bottom: 20, left: 20, right: 20 },
+        bgOpacity: 0.85,
+    });
+    lightbox.init();
+});
+</script>
+
+
+
+
+{% endblock %}
