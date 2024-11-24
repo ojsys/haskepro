@@ -30,67 +30,38 @@
 </div>
 
 <!-- Church Impact Section -->
-<section class="explore-section">
+
+<section class="explore-section py-5">
     <div class="container">
         <div class="row">
             <div class="col-lg-6">
                 <h2>Explore Unreached People</h2>
-                <p>Click on any state to see detailed statistics about unreached people groups and our ministry impact.</p>
+                <p>Click on any colored state to see detailed statistics.</p>
                 
-                <!-- State Statistics Card (initially hidden) -->
+                <!-- Stats Card -->
                 <div id="state-stats" class="card mt-4" style="display: none;">
                     <div class="card-body">
                         <h3 id="state-name"></h3>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <span class="stat-label">Villages</span>
-                                <span id="village-count" class="stat-value"></span>
+                        <div class="stats-grid mt-3">
+                            <div class="stat-box">
+                                <small>Villages</small>
+                                <h4 id="village-count">0</h4>
                             </div>
-                            <div class="stat-item">
-                                <span class="stat-label">People Groups</span>
-                                <span id="people-groups" class="stat-value"></span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Population</span>
-                                <span id="total-population" class="stat-value"></span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Converts</span>
-                                <span id="converts" class="stat-value"></span>
-                            </div>
-                        </div>
-                        <div class="religious-breakdown mt-3">
-                            <h5>Religious Breakdown</h5>
-                            <div class="progress-stats">
-                                <div class="stat-row">
-                                    <span>Christians</span>
-                                    <div class="progress">
-                                        <div id="christian-progress" class="progress-bar" role="progressbar"></div>
-                                    </div>
-                                    <span id="christian-percentage"></span>
-                                </div>
-                                <div class="stat-row">
-                                    <span>Muslims</span>
-                                    <div class="progress">
-                                        <div id="muslim-progress" class="progress-bar" role="progressbar"></div>
-                                    </div>
-                                    <span id="muslim-percentage"></span>
-                                </div>
-                                <div class="stat-row">
-                                    <span>Traditional</span>
-                                    <div class="progress">
-                                        <div id="traditional-progress" class="progress-bar" role="progressbar"></div>
-                                    </div>
-                                    <span id="traditional-percentage"></span>
-                                </div>
+                            <div class="stat-box">
+                                <small>Converts</small>
+                                <h4 id="converts-count">0</h4>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6">
-                <!-- Nigeria Map Container -->
-                <div id="nigeria-map" class="map-container"></div>
+                <div class="map-container">
+                    <div id="nigeria-map" class="position-relative">
+                        <!-- SVG map will be here -->
+                    </div>
+                    <div id="state-tooltip" class="state-tooltip" style="display: none;"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -419,6 +390,92 @@
         font-weight: bold;
         padding: 5px 10px;
     }
+
+    /* Map CSS */
+    .map-container {
+        height: 500px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .state-path {
+        fill: #e9ecef;
+        stroke: #fff;
+        stroke-width: 1;
+        transition: all 0.3s ease;
+    }
+
+    .state-path.has-data {
+        fill: #007bff;
+        cursor: pointer;
+    }
+
+    .state-path.has-data:hover {
+        fill: #0056b3;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .stat-box {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    /* More MAp CSS */
+    .map-container {
+        position: relative;
+        height: 600px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .state-path {
+        fill: #e9ecef;
+        stroke: #fff;
+        stroke-width: 1;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .state-path.has-data {
+        fill: #007bff;
+    }
+
+    .state-path.has-data:hover {
+        fill: #0056b3;
+    }
+
+    .state-tooltip {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .tooltip-content {
+        text-align: center;
+    }
+
+    .tooltip-title {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .tooltip-stats {
+        font-size: 12px;
+    }
 </style>
 {% endblock %}
 
@@ -436,8 +493,103 @@ document.addEventListener('DOMContentLoaded', () => {
     lightbox.init();
 });
 </script>
+<!-- This the map JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load the SVG map
+        fetch('/static/js/nigeria-map.svg')
+            .then(response => response.text())
+            .then(svgContent => {
+                document.getElementById('nigeria-map').innerHTML = svgContent;
+                initializeMap();
+            });
+
+        function initializeMap() {
+            // Get states with data
+            fetch('/api/state-data/')
+                .then(response => response.json())
+                .then(data => {
+                    // Color states that have data
+                    data.states.forEach(stateData => {
+                        const stateElement = document.querySelector(`#${stateData.state.toLowerCase()}`);
+                        if (stateElement) {
+                            stateElement.classList.add('has-data');
+                            stateElement.addEventListener('click', () => showStateStats(stateData));
+                        }
+                    });
+                });
+        }
+
+        function showStateStats(stateData) {
+            const statsCard = document.getElementById('state-stats');
+            statsCard.style.display = 'block';
+            
+            document.getElementById('state-name').textContent = stateData.state;
+            document.getElementById('village-count').textContent = stateData.village_count;
+            document.getElementById('converts-count').textContent = stateData.total_converts;
+        }
+    });
 
 
+</script>
+
+<!-- More Map JS -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltip = document.getElementById('state-tooltip');
+        let stateData = {};
+    
+        // Fetch state data
+        fetch('/api/state-data/')
+            .then(response => response.json())
+            .then(data => {
+                stateData = data.states.reduce((acc, state) => {
+                    acc[state.state] = state;
+                    return acc;
+                }, {});
+                
+                // Initialize map interactions
+                document.querySelectorAll('.state-path').forEach(statePath => {
+                    const state = statePath.getAttribute('data-state');
+                    
+                    if (stateData[state]) {
+                        statePath.classList.add('has-data');
+                    }
+    
+                    // Hover effects
+                    statePath.addEventListener('mousemove', (e) => {
+                        const data = stateData[state];
+                        if (data) {
+                            tooltip.style.display = 'block';
+                            tooltip.style.left = e.pageX + 10 + 'px';
+                            tooltip.style.top = e.pageY + 10 + 'px';
+                            tooltip.innerHTML = `
+                                <div class="tooltip-content">
+                                    <div class="tooltip-title">${state} State</div>
+                                    <div class="tooltip-stats">
+                                        Villages: ${data.village_count}<br>
+                                        Population: ${data.total_population.toLocaleString()}<br>
+                                        Converts: ${data.total_converts.toLocaleString()}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+    
+                    statePath.addEventListener('mouseleave', () => {
+                        tooltip.style.display = 'none';
+                    });
+    
+                    // Click to view details
+                    statePath.addEventListener('click', () => {
+                        if (stateData[state]) {
+                            window.location.href = `/state/${state}/`;
+                        }
+                    });
+                });
+            });
+    });
+</script>
 <!-- Keep your existing PhotoSwipe initialization -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {

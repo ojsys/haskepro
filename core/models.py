@@ -98,7 +98,49 @@ class Gallery(models.Model):
 
 
 class DemographicData(models.Model):
-    state = models.CharField(max_length=100)
+
+    STATE_CHOICES = [
+        ('Abia', 'Abia'),
+        ('Adamawa', 'Adamawa'),
+        ('Akwa Ibom', 'Akwa Ibom'),        
+        ('Anambra', 'Anambra'),      
+        ('Bauchi', 'Bauchi'),     
+        ('Bayelsa', 'Bayelsa'),      
+        ('Benue', 'Benue'),
+        ('Borno', 'Borno'),
+        ('Cross River', 'Cross River'),
+        ('Delta', 'Delta'),    
+        ('Ebonyi', 'Ebonyi'),     
+        ('Edo', 'Edo'),  
+        ('Ekiti', 'Ekiti'),    
+        ('Enugu', 'Enugu'),    
+        ('FCT', 'Abuja'),
+        ('Gombe', 'Gombe'),    
+        ('Imo', 'Imo'),  
+        ('Jigawa', 'Jigawa'),     
+        ('Kaduna', 'Kaduna'),     
+        ('Kano', 'Kano'),   
+        ('Katsina', 'Katsina'),      
+        ('Kebbi', 'Kebbi'),    
+        ('Kogi', 'Kogi'),   
+        ('Kwara', 'Kwara'),    
+        ('Lagos', 'Lagos'),    
+        ('Nasarawa', 'Nasarawa'),       
+        ('Niger', 'Niger'),    
+        ('Ogun', 'Ogun'),   
+        ('Ondo', 'Ondo'),   
+        ('Osun', 'Osun'),   
+        ('Oyo', 'Oyo'),  
+        ('Plateau', 'Plateau'),      
+        ('Rivers', 'Rivers'),     
+        ('Sokoto', 'Sokoto'),     
+        ('Taraba', 'Taraba'),     
+        ('Yobe', 'Yobe'),   
+        ('Zamfara', 'Zamfara'), 
+        ]
+
+
+    state = models.CharField(max_length=50, choices=STATE_CHOICES)
     lga = models.CharField(max_length=100, verbose_name="L.G.A")
     ward = models.CharField(max_length=100)
     village = models.CharField(max_length=100)
@@ -121,6 +163,7 @@ class DemographicData(models.Model):
             models.Index(fields=['state']),
             models.Index(fields=['lga']),
         ]
+        unique_together = ['state', 'lga', 'ward', 'village']
 
     def __str__(self):
-        return f"{self.village}, {self.lga}, {self.state}"
+        return f"{self.state}, {self.village}, {self.lga} "
