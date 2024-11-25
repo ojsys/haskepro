@@ -42,6 +42,7 @@ class GalleryAdmin(admin.ModelAdmin):
     list_editable = ('is_featured',)
     search_fields = ('title', 'description')
     list_filter = ('is_featured',)
+    
 
 @admin.register(MinistrySection)
 class MinistrySectionAdmin(admin.ModelAdmin):
@@ -59,6 +60,7 @@ class DemographicDataAdmin(admin.ModelAdmin):
     list_display = ['state', 'lga', 'ward', 'village', 'total_village_population', 'converts']
     list_filter = ['state', 'lga']
     search_fields = ['state', 'lga', 'ward', 'village']
+    actions = ['export_selected_state']
     
     fieldsets = (
         ('Location', {
@@ -87,7 +89,10 @@ class DemographicDataAdmin(admin.ModelAdmin):
         ]
         return custom_urls + urls
 
-    def export_state_data(self, request, state_name):
+    def export_selected_state(self, request, queryset):
+        # Get unique state from selection
+        state_name = queryset.first().state if queryset.exists() else "Unknown"
+        
         # Create workbook
         wb = Workbook()
         ws = wb.active
@@ -109,9 +114,8 @@ class DemographicDataAdmin(admin.ModelAdmin):
             cell.font = header_font
             cell.fill = header_fill
         
-        # Get and write data
-        state_data = DemographicData.objects.filter(state=state_name)
-        for row, data in enumerate(state_data, 2):
+        # Write data
+        for row, data in enumerate(queryset, 2):
             ws.cell(row=row, column=1, value=data.lga)
             ws.cell(row=row, column=2, value=data.ward)
             ws.cell(row=row, column=3, value=data.village)
@@ -143,10 +147,5 @@ class DemographicDataAdmin(admin.ModelAdmin):
         
         wb.save(response)
         return response
-
-    def changelist_view(self, request, extra_context=None):
-        # Get unique states
-        states = DemographicData.objects.values_list('state', flat=True).distinct()
-        extra_context = extra_context or {}
-        extra_context['states'] = states
-        return super().changelist_view(request, extra_context)
+    
+    export_selected_state.short_description = "Export selected data to Excel"
