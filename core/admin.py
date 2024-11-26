@@ -80,14 +80,14 @@ class DemographicDataAdmin(admin.ModelAdmin):
         })
     )
 
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('export-state/<str:state_name>/', 
-                 self.admin_site.admin_view(self.export_state_data), 
-                 name='export-state-data'),
-        ]
-        return custom_urls + urls
+    # def get_urls(self):
+    #     urls = super().get_urls()
+    #     custom_urls = [
+    #         path('export-state/<str:state_name>/', 
+    #              self.admin_site.admin_view(self.export_state_data), 
+    #              name='export-state-data'),
+    #     ]
+    #     return custom_urls + urls
 
     def export_selected_state(self, request, queryset):
         # Get unique state from selection
