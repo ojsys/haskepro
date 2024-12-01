@@ -56,11 +56,11 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="map-container">
+                <div class="map" style="height: 400px;">
                     <div id="nigeria-map" class="position-relative">
-                        <!-- SVG map will be here -->
+                        <!-- SVG map will be dynamically loaded here -->
+                        <!-- <div id="state-tooltip" class="state-tooltip" style="display: none;"></div> -->
                     </div>
-                    <div id="state-tooltip" class="state-tooltip" style="display: none;"></div>
                 </div>
             </div>
         </div>
@@ -209,7 +209,93 @@
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <style>
+    #map {
+        height: 600px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .map-container {
+        position: relative;
+        height: 600px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .state-path {
+        fill: #017BFF; /* Default color */
+        stroke: #fff;
+        stroke-width: 1;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .state-path.has-data {
+        fill: #22C998; /* Color when data is available */
+    }
+
+    .state-tooltip {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .stat-box {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+</style>
+<style>
+     /* Map CSS */
+     .map-container {
+        position: relative;
+        height: 600px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .state-path {
+        fill: #017BFF; /* Default color */
+        stroke: #fff;
+        stroke-width: 1;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .state-path.has-data {
+        fill: #22C998; /* Color when data is available */
+    }
+
+    .state-tooltip {
+        position: absolute;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 10px;
+        border-radius: 4px;
+        font-size: 14px;
+        pointer-events: none;
+        z-index: 1000;
+    }
+
     /* Hero Carousel Styles */
     .carousel-item {
         height: 600px;
@@ -481,115 +567,8 @@
 
 {% block js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const lightbox = new PhotoSwipeLightbox({
-        gallery: '#gallery',
-        children: 'a',
-        pswpModule: PhotoSwipe,
-        padding: { top: 20, bottom: 20, left: 20, right: 20 },
-        bgOpacity: 0.85,
-    });
-    lightbox.init();
-});
-</script>
-<!-- This the map JS -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Load the SVG map
-        fetch('/static/js/nigeria-map.svg')
-            .then(response => response.text())
-            .then(svgContent => {
-                document.getElementById('nigeria-map').innerHTML = svgContent;
-                initializeMap();
-            });
-
-        function initializeMap() {
-            // Get states with data
-            fetch('/api/state-data/')
-                .then(response => response.json())
-                .then(data => {
-                    // Color states that have data
-                    data.states.forEach(stateData => {
-                        const stateElement = document.querySelector(`#${stateData.state.toLowerCase()}`);
-                        if (stateElement) {
-                            stateElement.classList.add('has-data');
-                            stateElement.addEventListener('click', () => showStateStats(stateData));
-                        }
-                    });
-                });
-        }
-
-        function showStateStats(stateData) {
-            const statsCard = document.getElementById('state-stats');
-            statsCard.style.display = 'block';
-            
-            document.getElementById('state-name').textContent = stateData.state;
-            document.getElementById('village-count').textContent = stateData.village_count;
-            document.getElementById('converts-count').textContent = stateData.total_converts;
-        }
-    });
 
 
-</script>
-
-<!-- More Map JS -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const tooltip = document.getElementById('state-tooltip');
-        let stateData = {};
-    
-        // Fetch state data
-        fetch('/api/state-data/')
-            .then(response => response.json())
-            .then(data => {
-                stateData = data.states.reduce((acc, state) => {
-                    acc[state.state] = state;
-                    return acc;
-                }, {});
-                
-                // Initialize map interactions
-                document.querySelectorAll('.state-path').forEach(statePath => {
-                    const state = statePath.getAttribute('data-state');
-                    
-                    if (stateData[state]) {
-                        statePath.classList.add('has-data');
-                    }
-    
-                    // Hover effects
-                    statePath.addEventListener('mousemove', (e) => {
-                        const data = stateData[state];
-                        if (data) {
-                            tooltip.style.display = 'block';
-                            tooltip.style.left = e.pageX + 10 + 'px';
-                            tooltip.style.top = e.pageY + 10 + 'px';
-                            tooltip.innerHTML = `
-                                <div class="tooltip-content">
-                                    <div class="tooltip-title">${state} State</div>
-                                    <div class="tooltip-stats">
-                                        Villages: ${data.village_count}<br>
-                                        Population: ${data.total_population.toLocaleString()}<br>
-                                        Converts: ${data.total_converts.toLocaleString()}
-                                    </div>
-                                </div>
-                            `;
-                        }
-                    });
-    
-                    statePath.addEventListener('mouseleave', () => {
-                        tooltip.style.display = 'none';
-                    });
-    
-                    // Click to view details
-                    statePath.addEventListener('click', () => {
-                        if (stateData[state]) {
-                            window.location.href = `/state/${state}/`;
-                        }
-                    });
-                });
-            });
-    });
-</script>
 <!-- Keep your existing PhotoSwipe initialization -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -602,9 +581,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     lightbox.init();
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+        // Initialize the map
+        const map = L.map('map').setView([9.0820, 8.6753], 6); // Centered on Nigeria
+
+        // Add a tile layer (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Fetch state data
+        fetch('/api/state-data/')
+            .then(response => response.json())
+            .then(data => {
+                data.states.forEach(state => {
+                    // Create a circle marker for each state
+                    const marker = L.circleMarker([state.latitude, state.longitude], {
+                        color: state.hasData ? '#22C998' : '#017BFF',
+                        radius: 10
+                    }).addTo(map);
+
+                    // Add a popup with state information
+                    marker.bindPopup(`
+                        <strong>${state.state} State</strong><br>
+                        Villages: ${state.village_count}<br>
+                        Population: ${state.total_population.toLocaleString()}<br>
+                        Converts: ${state.total_converts.toLocaleString()}
+                    `);
+
+                    // Click event to show more details
+                    marker.on('click', () => {
+                        window.location.href = `/state/${state.state.toLowerCase()}/`;
+                    });
+                });
+            })
+            .catch(error => console.error('Error fetching state data:', error));
+    });
+
 </script>
-
-
 
 
 {% endblock %}
