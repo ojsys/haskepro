@@ -56,10 +56,11 @@
                 </div>
             </div>
             <div class="col-lg-6">
-                <div class="map" style="height: 400px;">
+                <div class="map-container" style="height: 400px;">
                     <div id="nigeria-map" class="position-relative">
                         <!-- SVG map will be dynamically loaded here -->
                         <!-- <div id="state-tooltip" class="state-tooltip" style="display: none;"></div> -->
+                        <div id="map"></div>
                     </div>
                 </div>
             </div>
@@ -212,7 +213,7 @@
 
 <style>
     #map {
-        height: 600px;
+        height: 400px;
         width: 100%;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -567,22 +568,8 @@
 
 {% block js %}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-
-<!-- Keep your existing PhotoSwipe initialization -->
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const lightbox = new PhotoSwipeLightbox({
-        gallery: '#gallery',
-        children: 'a',
-        pswpModule: PhotoSwipe,
-        padding: { top: 20, bottom: 20, left: 20, right: 20 },
-        bgOpacity: 0.85,
-    });
-    lightbox.init();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
         // Initialize the map
         const map = L.map('map').setView([9.0820, 8.6753], 6); // Centered on Nigeria
 
@@ -592,35 +579,23 @@ document.addEventListener('DOMContentLoaded', function() {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
-        // Fetch state data
-        fetch('/api/state-data/')
+        // Load GeoJSON data for Nigeria's states
+        fetch('/static/js/map.geojson')
             .then(response => response.json())
-            .then(data => {
-                data.states.forEach(state => {
-                    // Create a circle marker for each state
-                    const marker = L.circleMarker([state.latitude, state.longitude], {
-                        color: state.hasData ? '#22C998' : '#017BFF',
-                        radius: 10
-                    }).addTo(map);
-
-                    // Add a popup with state information
-                    marker.bindPopup(`
-                        <strong>${state.state} State</strong><br>
-                        Villages: ${state.village_count}<br>
-                        Population: ${state.total_population.toLocaleString()}<br>
-                        Converts: ${state.total_converts.toLocaleString()}
-                    `);
-
-                    // Click event to show more details
-                    marker.on('click', () => {
-                        window.location.href = `/state/${state.state.toLowerCase()}/`;
-                    });
-                });
+            .then(geojsonData => {
+                L.geoJSON(geojsonData, {
+                    style: function(feature) {
+                        return {
+                            color: '#000000', // Border color
+                            weight: 1,
+                            fillColor: '#017BFF', // Fill color for all states
+                            fillOpacity: 0.7
+                        };
+                    }
+                }).addTo(map);
             })
-            .catch(error => console.error('Error fetching state data:', error));
+            .catch(error => console.error('Error loading GeoJSON data:', error));
     });
-
 </script>
-
 
 {% endblock %}
