@@ -4,8 +4,10 @@ from rest_framework import generics
 from rest_framework.response import Response
 from django.db.models import Sum, Count
 from django.views.generic import TemplateView
-from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData
+from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo
 from .serializers import DemographicDataSerializer
+
+
 
 class StateDemographicView(generics.RetrieveAPIView):
     serializer_class = DemographicDataSerializer
@@ -99,10 +101,11 @@ def state_detail(request, state_name):
 def home(request):
     context = {
         'slides': HeroSlide.objects.filter(is_active=True).order_by('order'),
-        'statistics': Statistics.objects.first(),
+        'statistics': Statistics.objects.last(),
         'achievement': Achievement.objects.first(),
         'ministry_section': MinistrySection.objects.first(),
         'ministries': Ministry.objects.all(),
         'gallery_items': Gallery.objects.filter(is_featured=True)[:6],
+        'logo': SiteLogo.objects.last(),
     }
     return render(request, 'core/home.html', context)

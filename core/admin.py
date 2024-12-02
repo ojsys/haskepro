@@ -4,7 +4,12 @@ from django.urls import path
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from datetime import datetime
-from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData
+from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo
+
+
+
+
+admin.site.register(SiteLogo)
 
 @admin.register(HeroSlide)
 class HeroSlideAdmin(admin.ModelAdmin):

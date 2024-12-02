@@ -20,6 +20,12 @@ class HeroSlide(models.Model):
         return self.title
 
 class Statistics(models.Model):
+    title = models.CharField(max_length=255, default="Reaching Lives Across The Country")
+    subtitle = models.CharField(max_length=255, default="Church Impact")
+    stat_title1 = models.CharField(max_length=255, default="Our Statistics")
+    stat_desc1 = models.CharField(max_length=255, default="An overview of the unreached people groups mostly in Nothern Nigeria")
+    stat_title2 = models.CharField(max_length=255, default="Explore unreached people")
+    stat_desc2 = models.CharField(max_length=255, default="Click on any colored state to see detailed statistics.")
     total_people = models.IntegerField(default=0)
     villages_reached = models.IntegerField(default=0)
     people_reached = models.IntegerField(default=0)
@@ -167,3 +173,11 @@ class DemographicData(models.Model):
 
     def __str__(self):
         return f"{self.state}, {self.village}, {self.lga} "
+
+
+class SiteLogo(models.Model):
+    logo = models.ImageField(upload_to='logos/')
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Logo updated on {self.updated_at}"
