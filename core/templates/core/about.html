@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="about-hero">
+    {% if about.header_image %}
+    <div class="hero-container">
+        <div class="hero-image" style="background-image: url('{{ about.header_image.url }}');">
+            <div class="overlay"></div>
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-lg-8" style="padding-left: 50px; padding-top: 150px;">
+                        <h1 class="hero-title mb-4">{{ about.title }}</h1>
+                        <p class="hero-text">{{ about.introduction }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+
+<!-- Ministry Section -->
+<section class="ministry-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Our Ministry</h2>
+        <div class="row">
+            {% for ministry in ministries %}
+            <div class="col-md-6 mb-4">
+                <div class="ministry-card">
+                    <h3>{{ ministry.title }}</h3>
+                    <p>{{ ministry.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Mission & Vision Section -->
+<section class="mission-vision-section py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="mission-card">
+                    {% if mission_vision.mission_image %}
+                    <img src="{{ mission_vision.mission_image.url }}" class="img-fluid mb-3" alt="Mission">
+                    {% endif %}
+                    <h2>{{ mission_vision.mission_title }}</h2>
+                    <p>{{ mission_vision.mission_text }}</p>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="vision-card">
+                    {% if mission_vision.vision_image %}
+                    <img src="{{ mission_vision.vision_image.url }}" class="img-fluid mb-3" alt="Vision">
+                    {% endif %}
+                    <h2>{{ mission_vision.vision_title }}</h2>
+                    <p>{{ mission_vision.vision_text }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Challenges Section -->
+<section class="challenges-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">{{ challenge.title }}</h2>
+        <p class="text-center mb-5">{{ challenge.description }}</p>
+        
+        <div class="row">
+            <!-- Challenge 1 -->
+            <div class="col-md-4 mb-4">
+                <div class="challenge-card">
+                    {% if challenge.challenge1_image %}
+                    <img src="{{ challenge.challenge1_image.url }}" class="img-fluid mb-3" alt="{{ challenge.challenge1_title }}">
+                    {% endif %}
+                    <h3>{{ challenge.challenge1_title }}</h3>
+                    <p>{{ challenge.challenge1_desc }}</p>
+                </div>
+            </div>
+            
+            <!-- Challenge 2 -->
+            <div class="col-md-4 mb-4">
+                <div class="challenge-card">
+                    {% if challenge.challenge2_image %}
+                    <img src="{{ challenge.challenge2_image.url }}" class="img-fluid mb-3" alt="{{ challenge.challenge2_title }}">
+                    {% endif %}
+                    <h3>{{ challenge.challenge2_title }}</h3>
+                    <p>{{ challenge.challenge2_desc }}</p>
+                </div>
+            </div>
+            
+            <!-- Challenge 3 -->
+            <div class="col-md-4 mb-4">
+                <div class="challenge-card">
+                    {% if challenge.challenge3_image %}
+                    <img src="{{ challenge.challenge3_image.url }}" class="img-fluid mb-3" alt="{{ challenge.challenge3_title }}">
+                    {% endif %}
+                    <h3>{{ challenge.challenge3_title }}</h3>
+                    <p>{{ challenge.challenge3_desc }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Board Members Section -->
+<section class="board-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-4">Our Board</h2>
+        <div class="row">
+            {% for member in board_members %}
+            <div class="col-md-4 mb-4">
+                <div class="board-card text-center">
+                    {% if member.image %}
+                    <img src="{{ member.image.url }}" class="rounded-circle mb-3" alt="{{ member.name }}">
+                    {% endif %}
+                    <h3>{{ member.name }}</h3>
+                    <p class="text-muted">{{ member.position }}</p>
+                    <p>{{ member.bio }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<style>
+.about-header {
+    position: relative;
+    background-color: #f8f9fa;
+    padding: 60px 0;
+}
+
+.ministry-card,
+.challenge-card,
+.board-card {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 100%;
+    background: white;
+}
+
+.board-card img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+}
+
+.challenge-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.mission-card,
+.vision-card {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: 100%;
+    background: white;
+}
+</style>
+<style>
+    /* Hero Section Styles */
+    .about-hero {
+        position: relative;
+        height: 500px; /* Fixed height as requested */
+        overflow: hidden;
+    }
+    
+    .hero-container {
+        height: 100%;
+        width: 100%;
+    }
+    
+    .hero-image {
+        height: 100%;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+    
+    .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3); /* Dark overlay for better text readability */
+    }
+    
+    .hero-title {
+        color: white;
+        font-size: 3.5rem;
+        font-weight: 700;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-text {
+        color: white;
+        font-size: 1.2rem;
+        max-width: 800px;
+        margin: 0 auto;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        position: relative;
+        z-index: 2;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.5rem;
+        }
+        
+        .hero-text {
+            font-size: 1rem;
+            padding: 0 15px;
+        }
+    }
+    </style>
+{% endblock %}

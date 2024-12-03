@@ -4,7 +4,7 @@ from django.urls import path
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from datetime import datetime
-from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo
+from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, Subscriber, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
 
 
 
@@ -21,7 +21,7 @@ class HeroSlideAdmin(admin.ModelAdmin):
 
 @admin.register(Statistics)
 class StatisticsAdmin(admin.ModelAdmin):
-    list_display = ('total_people', 'villages_reached', 'people_reached', 'updated_at')
+    list_display = ('title', 'total_population', 'people_groups', 'villages_reached', 'converts', 'film_attendees', 'people_reached', 'updated_at')
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):
@@ -154,3 +154,59 @@ class DemographicDataAdmin(admin.ModelAdmin):
         return response
     
     export_selected_state.short_description = "Export selected data to Excel"
+
+
+@admin.register(Subscriber)
+class SubscriberAdmin(admin.ModelAdmin):
+    list_display = ('email', 'created_at', 'is_active')
+    list_filter = ('is_active', 'created_at')
+    search_fields = ('email',)
+    date_hierarchy = 'created_at'
+
+###### ABout ######
+@admin.register(AboutPage)
+class AboutPageAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        # Limit to single instance
+        if self.model.objects.exists():
+            return False
+        return True
+
+@admin.register(AboutMinistry)
+class AboutMinistryAdmin(admin.ModelAdmin):
+    list_display = ('title', 'order')
+    list_editable = ('order',)
+
+@admin.register(MissionVision)
+class MissionVisionAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        # Limit to single instance
+        if self.model.objects.exists():
+            return False
+        return True
+
+@admin.register(Challenge)
+class ChallengeAdmin(admin.ModelAdmin):
+    list_display = ('title', 'order')
+    list_editable = ('order',)
+    fieldsets = (
+        (None, {
+            'fields': ('title', 'description', 'order')
+        }),
+        ('Challenge 1', {
+            'fields': ('challenge1_title', 'challenge1_desc', 'challenge1_image')
+        }),
+        ('Challenge 2', {
+            'fields': ('challenge2_title', 'challenge2_desc', 'challenge2_image')
+        }),
+        ('Challenge 3', {
+            'fields': ('challenge3_title', 'challenge3_desc', 'challenge3_image')
+        }),
+    )
+
+@admin.register(BoardMember)
+class BoardMemberAdmin(admin.ModelAdmin):
+    list_display = ('name', 'position', 'order')
+    list_editable = ('order',)
+
+####################

@@ -26,13 +26,29 @@ class Statistics(models.Model):
     stat_desc1 = models.CharField(max_length=255, default="An overview of the unreached people groups mostly in Nothern Nigeria")
     stat_title2 = models.CharField(max_length=255, default="Explore unreached people")
     stat_desc2 = models.CharField(max_length=255, default="Click on any colored state to see detailed statistics.")
-    total_people = models.IntegerField(default=0)
+
+    # Population Statistics
+    total_population = models.IntegerField(default=0, help_text="Total estimated population")
+    people_groups = models.IntegerField(default=0)
+    # Minsitry Impact
     villages_reached = models.IntegerField(default=0)
+    converts = models.IntegerField(default=0, help_text="Number of converts")
+    film_attendees = models.IntegerField(default=0, help_text="Number of film showing attendees")
     people_reached = models.IntegerField(default=0)
+
     updated_at = models.DateTimeField(auto_now=True)
 
+    # Additional Impact Metrics
+    bible_translations = models.IntegerField(default=0, help_text="Number of Bible translations")
+    active_missionaries = models.IntegerField(default=0, help_text="Number of active missionaries")
+    training_sessions = models.IntegerField(default=0, help_text="Number of training sessions conducted")
+    
     class Meta:
-        verbose_name_plural = "Statistics"
+        verbose_name = "Statistics Section"
+        verbose_name_plural = "Statistics Sections"
+    
+    def __str__(self):
+        return f"Stats {self.title}"
 
 class Achievement(models.Model):
     villages = models.IntegerField(default=0)
@@ -181,3 +197,86 @@ class SiteLogo(models.Model):
 
     def __str__(self):
         return f"Logo updated on {self.updated_at}"
+    
+
+class Subscriber(models.Model):
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.email
+    
+
+#################### ABOUT PAGE MODEL ###################
+
+class AboutPage(models.Model):
+    title = models.CharField(max_length=200, default="ABOUT US")
+    header_image = models.ImageField(upload_to='about/', help_text="Header image for about page")
+    introduction = models.TextField(help_text="Main introduction text")
+
+    class Meta:
+        verbose_name = "About Page"
+        verbose_name_plural = "About Page"
+    
+    def __str__(self):
+        return f"{self.title}"
+
+class AboutMinistry(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order']
+        verbose_name_plural = "About Ministry"
+
+    def __str__(self):
+        return self.title
+
+class MissionVision(models.Model):
+    mission_title = models.CharField(max_length=200, default="Our Mission")
+    mission_text = models.TextField()
+    vision_title = models.CharField(max_length=200, default="Our Vision")
+    vision_text = models.TextField()
+    mission_image = models.ImageField(upload_to='about/', height_field="Image for Mission")
+    vision_image = models.ImageField(upload_to='about/', height_field="Image for Vision")
+
+    class Meta:
+        verbose_name = "Mission and Vision"
+        verbose_name_plural = "Mission and Vision"
+
+class Challenge(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    order = models.IntegerField(default=0)
+    challenge1_title = models.CharField(max_length=200, default="Reaching the Unreached in 10/40 Window")
+    challenge1_desc = models.TextField()
+    challenge1_image = models.ImageField(upload_to='about/challenge/', help_text="Challenge Image")
+    challenge2_title = models.CharField(max_length=200, default="Praying for the Unreached")
+    challenge2_desc = models.TextField()
+    challenge2_image = models.ImageField(upload_to='about/challenge/', help_text="Challenge Image")
+    challenge3_title = models.CharField(max_length=200, default="Supporting Education in Nigeria")
+    challenge3_desc = models.TextField()
+    challenge3_image = models.ImageField(upload_to='about/challenge/', help_text="Challenge Image")
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.title
+
+class BoardMember(models.Model):
+    name = models.CharField(max_length=200)
+    position = models.CharField(max_length=200)
+    bio = models.TextField()
+    image = models.ImageField(upload_to='board/')
+    order = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return self.name
+    
+

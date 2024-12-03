@@ -4,8 +4,9 @@ from rest_framework import generics
 from rest_framework.response import Response
 from django.db.models import Sum, Count
 from django.views.generic import TemplateView
-from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo
+from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
 from .serializers import DemographicDataSerializer
+from .forms import SubscriberForm
 
 
 
@@ -92,7 +93,8 @@ def state_detail(request, state_name):
     context = {
         'state_name': state_name,
         'summary': summary,
-        'detailed_data': detailed_data
+        'detailed_data': detailed_data,
+        'logo': SiteLogo.objects.last(),
     }
     print(f"Number of detailed records: {detailed_data.count()}")
     return render(request, 'core/state_detail.html', context)
@@ -109,3 +111,40 @@ def home(request):
         'logo': SiteLogo.objects.last(),
     }
     return render(request, 'core/home.html', context)
+
+
+def subscribe(request):
+    if request.method == 'POST':
+        form = SubscriberForm(request.POST)
+        if form.is_valid():
+            try:
+                form.save()
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Thank you for subscribing!'
+                })
+            except:
+                return JsonResponse({
+                    'status': 'error',
+                    'message': 'This email is already subscribed.'
+                })
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Please enter a valid email address.'
+            })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
+##################### About Page ######################
+
+def about(request):
+    context = {
+        'about': AboutPage.objects.first(),
+        'ministries': AboutMinistry.objects.all(),
+        'mission_vision': MissionVision.objects.first(),
+        'challenge': Challenge.objects.first(),
+        'board_members': BoardMember.objects.all(),
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/about.html', context)

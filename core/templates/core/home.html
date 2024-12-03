@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block content %}
 <!-- Hero Slider -->
@@ -31,39 +32,68 @@
 
 <!-- Church Impact Section -->
 
-<section class="explore-section py-5">
+<section class="explore-section py-5 mb-5">
     <div class="container">
-
         <div class="row">
-            <h2 class="mb-5" style="font-size: 3em;">Reaching Lives <br> Across the Country</h2>
-            <div class="col-lg-6">
-                <h2>Statistics</h2>
-                <p>Some of our Numbers at a glance</p>
-                
-                <!-- Stats Card -->
-                <div id="state-stats" class="card mt-4" style="display: none;">
-                    <div class="card-body">
-                        <h3 id="state-name"></h3>
-                        <div class="stats-grid mt-3">
-                            <div class="stat-box">
-                                <small>Villages</small>
-                                <h4 id="village-count">0</h4>
+            <h2  style="font-size: 3em;">{{ statistics.title }}</h2>
+            <p class="mb-5">{{ statistics.subtitle }}</p>
+            <div class="col-lg-6 mt-5">
+                <h2>{{ statistics.stat_title1 }}</h2>
+                <p>{{ statistics.stat_desc1 }}</p>
+                <!-- Main Statistics Grid -->
+                <div class="statistics-overview mb-4">
+                    <div class="stat-card primary">
+                        <h3>{{ statistics.total_population|intcomma }}</h3>
+                        <p>Total Estimated Population</p>
+                    </div>
+                    <div class="stat-card secondary">
+                        <h3>{{ statistics.people_groups|intcomma }}</h3>
+                        <p>People Groups</p>
+                    </div>
+                </div>
+
+                <!-- Ministry Impact Grid -->
+                <div class="impact-statistics mb-4">
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <i class="fas fa-home"></i>
+                            <div class="stat-content">
+                                <h4>{{ statistics.villages_reached|intcomma }}</h4>
+                                <p>Villages Reached</p>
                             </div>
-                            <div class="stat-box">
-                                <small>Converts</small>
-                                <h4 id="converts-count">0</h4>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <div class="stat-content">
+                                <h4>{{ statistics.converts|intcomma }}</h4>
+                                <p>New Converts</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-item">
+                            <i class="fas fa-film"></i>
+                            <div class="stat-content">
+                                <h4>{{ statistics.film_attendees|intcomma }}</h4>
+                                <p>Film Attendees</p>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-book-open"></i>
+                            <div class="stat-content">
+                                <h4>{{ statistics.bible_translations }}</h4>
+                                <p>Bible Translations</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <h2>Explore Unreached People</h2>
-                <p>Click on any colored state to see detailed statistics.</p>
+            <div class="col-lg-6  mt-5">
+                <h2>{{ statistics.stat_title2 }}</h2>
+                <p>{{ statistics.stat_desc2 }}</p>
                 <div class="map-container" style="height: 400px;">
                     <div id="nigeria-map" class="position-relative">
                         <!-- SVG map will be dynamically loaded here -->
-                        <!-- <div id="state-tooltip" class="state-tooltip" style="display: none;"></div> -->
                         <div id="map"></div>
                     </div>
                 </div>
@@ -73,7 +103,7 @@
 </section>
 
 <!-- Ministry Section -->
-<section class="ministry-section py-5 bg-white">
+<section class="ministry-section py-5 bg-white mt-5">
     <div class="container">
         <h3 class="mb-5 text-center">What We Do</h3>
         <!-- Preamble -->
@@ -118,7 +148,7 @@
 </section>
 
 <!-- Achievement Section -->
-<section class="achievement-section py-5" style="background-color: #e6f2ff;">
+<section class="achievement-section py-5 mt-5" style="background-color: #e6f2ff;">
     <div class="container">
         <h2 class="text-center mb-5">What We Have Achieved</h2>
         <div class="row text-center mt-5">
@@ -199,13 +229,15 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h3>Register now so you don't miss our programs</h3>
+                <h3>Subscribe now so you don't miss our programs</h3>
             </div>
             <div class="col-md-6">
-                <form class="d-flex">
-                    <input type="email" class="form-control me-2" placeholder="Enter your email">
-                    <button type="submit" class="btn btn-light">Subscribe Now</button>
+                <form id="subscribeForm" class="d-flex">
+                    {% csrf_token %}
+                    <input type="email" name="email" class="form-control me-2" placeholder="Enter your email" required>
+                    <button type="submit" style="padding: 0 20; font-size: small;" class="btn btn-light">Subscribe Now</button>
                 </form>
+                <div id="subscribeMessage" class="mt-2" style="display: none;"></div>
             </div>
         </div>
     </div>
@@ -214,7 +246,94 @@
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    /* Statistics Overview Styles */
+    .statistics-overview {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-bottom: 20px;
+    }
 
+    .stat-card {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stat-card.primary {
+        background: #017BFF;
+        color: white;
+    }
+
+    .stat-card.secondary {
+        background: #22C998;
+        color: white;
+    }
+
+    .stat-card h3 {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .stat-card p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    /* Impact Statistics Styles */
+    .impact-statistics {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .stat-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .stat-item i {
+        font-size: 24px;
+        margin-right: 15px;
+        color: #017BFF;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-content h4 {
+        margin: 0;
+        font-size: 1.5em;
+        color: #333;
+    }
+
+    .stat-content p {
+        margin: 5px 0 0;
+        color: #666;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .statistics-overview,
+        .stat-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
 <style>
     #map {
         height: 450px;
@@ -537,6 +656,34 @@
         font-size: 12px;
     }
 </style>
+<style>
+    .newsletter-section {
+        background-color: #017BFF;
+    }
+    
+    .newsletter-section h3 {
+        margin-bottom: 0;
+        font-size: 1.5rem;
+    }
+    
+    #subscribeMessage {
+        border-radius: 4px;
+        padding: 10px;
+        margin-top: 10px;
+    }
+    
+    .alert-success {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #155724;
+        border: none;
+    }
+    
+    .alert-danger {
+        background-color: rgba(255, 255, 255, 0.9);
+        color: #721c24;
+        border: none;
+    }
+    </style>
 {% endblock %}
 
 {% block js %}
@@ -621,14 +768,83 @@
                 };
             },
             onEachFeature: function(feature, layer) {
-                layer.on('click', function() {
-                    // Construct the URL using the state's name directly
-                    var stateName = feature.properties.name;
-                    var url = `http://localhost:8000/state/${stateName}`;
-                    window.location.href = url;
+                // Add hover effect
+                layer.on({
+                    // Show tooltip on mouseover
+                    mouseover: function(e) {
+                        var layer = e.target;
+                        layer.setStyle({
+                            fillOpacity: 0.7
+                        });
+                        
+                        // Create and show tooltip
+                        layer.bindTooltip(feature.properties.name, {
+                            permanent: false,
+                            direction: 'center',
+                            className: 'state-tooltip'
+                        }).openTooltip();
+                    },
+                    // Reset style on mouseout
+                    mouseout: function(e) {
+                        var layer = e.target;
+                        layer.setStyle({
+                            fillOpacity: 0.5
+                        });
+                    },
+                    // Handle click event
+                    click: function(e) {
+                        var stateName = feature.properties.name;
+                        window.location.href = `http://localhost:8000/state/${stateName}`;
+                    }
                 });
-                layer.bindPopup(feature.properties.name);
             }
         }).addTo(map);
+</script>
+<script>
+document.getElementById('subscribeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const form = this;
+    const messageDiv = document.getElementById('subscribeMessage');
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.innerHTML;
+    
+    // Disable the submit button and show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Subscribing...';
+    
+    fetch('/subscribe/', {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        messageDiv.style.display = 'block';
+        messageDiv.className = `alert alert-${data.status === 'success' ? 'success' : 'danger'}`;
+        messageDiv.innerHTML = data.message;
+        
+        if (data.status === 'success') {
+            form.reset();
+        }
+    })
+    .catch(error => {
+        messageDiv.style.display = 'block';
+        messageDiv.className = 'alert alert-danger';
+        messageDiv.innerHTML = 'An error occurred. Please try again later.';
+    })
+    .finally(() => {
+        // Re-enable the submit button and restore original text
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalButtonText;
+        
+        // Hide the message after 5 seconds
+        setTimeout(() => {
+            messageDiv.style.display = 'none';
+        }, 5000);
+    });
+});
 </script>
 {% endblock %}
