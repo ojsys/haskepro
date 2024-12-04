@@ -1,0 +1,119 @@
+<!-- templates/core/give.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="give-hero">
+    {% if page.header_image %}
+    <div class="hero-container">
+        <div class="hero-image" style="background-image: url('{{ page.header_image.url }}');">
+            <div class="overlay"></div>
+            <div class="container h-100">
+                <div class="row h-100 align-items-center justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <h1 class="hero-title text-white">{{ page.title }}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Description Section -->
+<section class="description-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <p>{{ page.description }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bank Details Section -->
+<section class="bank-details-section py-5 bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card shadow">
+                    <div class="card-body">
+                        <h4 class="text-center mb-4">Use the details below for Bank Transfer</h4>
+                        <div class="bank-details">
+                            <p class="mb-3"><strong>Bank:</strong> {{ page.bank_name }}</p>
+                            {% for account in bank_accounts %}
+                            <p class="mb-2">
+                                <strong>Account Number:</strong> {{ account.account_number }} 
+                                <span class="text-muted">{{ account.description }}</span>
+                            </p>
+                            {% endfor %}
+                        </div>
+                        <div class="text-center mt-4">
+                            <a href="https://dashboard.flutterwave.com/donate/o2pfywdiris4" class="btn btn-primary btn-lg">
+                                Give Online
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.give-hero {
+    position: relative;
+    height: 450px;
+    overflow: hidden;
+}
+
+.hero-container {
+    height: 100%;
+    width: 100%;
+}
+
+.hero-image {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.bank-details {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.btn-primary {
+    font-size: 1rem;
+    
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+}
+</style>
+{% endblock %}

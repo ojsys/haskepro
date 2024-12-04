@@ -14,6 +14,15 @@ urlpatterns = [
     path('volunteer/', views.volunteer, name='volunteer'),
     # volunteers Apply
     path('volunteer/apply/', views.volunteer_apply, name='volunteer-apply'),
+    # media
+    path('media/', views.media_center, name='media'),
+    # contact
+    path('contact/', views.contact, name='contact'),
+    # give
+    path('give/', views.give, name='give'),
+
+    path('blog/', views.blog_list, name='blog-list'),
+    path('blog/<slug:slug>/', views.blog_detail, name='blog-detail'),
 
     path('api/demographics/<str:state_name>/', StateDemographicView.as_view(), name='state-demographics'),
     path('demographics-map/', DemographicsMapView.as_view(), name='demographics-map'),

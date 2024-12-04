@@ -6,7 +6,7 @@ from openpyxl.styles import Font, PatternFill
 from datetime import datetime
 from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, Subscriber, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
 from .models import Project, ProjectPage, VolunteerPage, GoTeam, GiveSection, PrayerPartner, VolunteerApplication
-from .models import BlogPost, YouTubeVideo, SpotifyPodcast, MediaPage
+from .models import BlogPost, YouTubeVideo, SpotifyPodcast, MediaPage, DonationPage, BankAccount
 
 
 
@@ -275,3 +275,21 @@ class MediaPageAdmin(admin.ModelAdmin):
         if self.model.objects.exists():
             return False
         return True
+    
+#########################################
+@admin.register(DonationPage)
+class DonationPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'bank_name')
+    
+    def has_add_permission(self, request):
+        # Only allow one instance
+        if self.model.objects.exists():
+            return False
+        return True
+
+@admin.register(BankAccount) 
+class BankAccountAdmin(admin.ModelAdmin):
+    list_display = ('account_name', 'account_number', 'description')
+    list_editable = ('account_number', 'description')
+    search_fields = ('account_name', 'account_number')
+    ordering = ('account_name',)

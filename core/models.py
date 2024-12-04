@@ -462,3 +462,41 @@ class MediaPage(models.Model):
         return self.title
 
 #################################################
+
+##################  Contact   #################
+
+class ContactSubmission(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Message from {self.name}"
+    
+#################################################
+
+################# Donations #####################
+class DonationPage(models.Model):
+    title = models.CharField(max_length=200, default="GIVE")
+    header_image = models.ImageField(upload_to='donations/')
+    description = models.TextField()
+    bank_name = models.CharField(max_length=100, default="Zenith Bank Plc.")
+    
+    class Meta:
+        verbose_name = "Donation Page"
+        verbose_name_plural = "Donation Page"
+
+    def __str__(self):
+        return f"{self.title}"
+
+class BankAccount(models.Model):
+    bank_name = models.CharField(max_length=100, null=True, blank=True)
+    account_name = models.CharField(max_length=100, null=True, blank=True)
+    account_number = models.CharField(max_length=20, null=True, blank=True)
+    description = models.CharField(max_length=100, null=True, blank=True)  # e.g., "MAIN ACCOUNT", "HUMANITARIAN"
+    
+    def __str__(self):
+        return f"{self.account_number} - {self.description}"
+    
+#################################################

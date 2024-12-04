@@ -81,25 +81,12 @@
                         <a class="nav-link" href="{% url 'media' %}">Media</a>
                     </li>
                     <li class="nav-item"></li>
-                        <a class="nav-link" href="#">Contact Us</a>
+                        <a class="nav-link" href="{% url 'contact' %}">Contact Us</a>
                     </li>
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="fas fa-user"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                {% if user.is_staff %}
-                                    <li><a class="dropdown-item" href="/admin/"><i class="fas fa-cog"></i> Admin</a></li>
-                                {% endif %}
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="fas fa-sign-in-alt"></i> Login</a>
-                        </li>
-                    {% endif %}
+                    <li class="nav-item"></li>
+                        <a class="btn btn-primary" style="margin-left: 50px;" href="{% url 'give' %}">Give</a>
+                    </li>
+                    
                 </ul>
             </div>
         </div>
@@ -129,15 +116,15 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4">
-                    <h5>Light of Life</h5>
+                    <a class="navbar-brand" href="/"><img id="logo" src="{{ logo.logo.url }}" alt="Logo"></a> 
                     <p class="text-muted">Illuminating paths, transforming lives.</p>
                 </div>
                 <div class="col-md-4">
                     <h5>Quick Links</h5>
                     <ul class="list-unstyled">
                         <li><a href="{% url 'home' %}" class="text-decoration-none">Home</a></li>
-                        <li><a href="#" class="text-decoration-none">About Us</a></li>
-                        <li><a href="#" class="text-decoration-none">Contact</a></li>
+                        <li><a href="{% url 'about' %}" class="text-decoration-none">About Us</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-decoration-none">Contact</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">

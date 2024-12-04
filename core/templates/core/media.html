@@ -9,9 +9,9 @@
         <div class="hero-image" style="background-image: url('{{ page.header_image.url }}');">
             <div class="overlay"></div>
             <div class="container h-100">
-                <div class="row h-100 align-items-center">
-                    <div class="col-lg-8 mx-auto text-center">
-                        <h1 class="hero-title">{{ page.title }}</h1>
+                <div class="row h-100 align-items-center justify-content-center">
+                    <div class="col-lg-8 text-center">
+                        <h1 class="hero-title text-white">{{ page.title }}</h1>
                     </div>
                 </div>
             </div>
@@ -31,9 +31,9 @@
                     {% if post.featured_image %}
                     <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="card-img-top">
                     {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title">{{ post.title }}</h5>
-                        <p class="card-text">{{ post.excerpt }}</p>
+                    <div class="card-body" style="padding: 1.2em;">
+                        <h5 class="card-title mt-2 mb-2">{{ post.title }}</h5>
+                        <p class="card-text" style="font-size: 10px;">{{ post.excerpt }}</p>
                         <div class="d-flex justify-content-between align-items-center">
                             <small class="text-muted">{{ post.published_date|date:"M d, Y" }}</small>
                             <a href="{{ post.get_absolute_url }}" class="btn btn-outline-primary btn-sm">Read More</a>
@@ -55,10 +55,11 @@
         <h2 class="section-title text-center mb-4">{{ page.youtube_section_title }}</h2>
         <div class="row">
             {% for video in videos %}
-            <div class="col-md-6 mb-4">
+            <div class="col-md-4 mb-4">
                 <div class="video-card">
-                    <div class="embed-responsive embed-responsive-16by9">
-                        <iframe class="embed-responsive-item" src="{{ video.embed_url }}" 
+                    <div class="video-wrapper">
+                        <iframe src="{{ video.embed_url }}" 
+                                frameborder="0"
                                 allowfullscreen></iframe>
                     </div>
                     <div class="video-info mt-3">
@@ -70,7 +71,7 @@
             {% endfor %}
         </div>
         <div class="text-center mt-4">
-            <a href="https://www.youtube.com/channel/YOUR_CHANNEL_ID" target="_blank" 
+            <a href="https://www.youtube.com/@HaskeProject" target="_blank" 
                class="btn btn-primary">Visit Our YouTube Channel</a>
         </div>
     </div>
@@ -104,6 +105,75 @@
 
 <style>
 /* Add your custom styles here */
+.video-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.video-info {
+    padding: 1rem;
+}
+
+.media-hero {
+    position: relative;
+    height: 450px;
+    overflow: hidden;
+}
+
+.hero-container {
+    height: 100%;
+    width: 100%;
+}
+
+.hero-image {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+}
 .blog-card {
     height: 100%;
     transition: transform 0.3s ease;

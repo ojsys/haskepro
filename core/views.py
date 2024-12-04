@@ -1,11 +1,14 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from rest_framework import generics
 from rest_framework.response import Response
 from django.db.models import Sum, Count
+from django.contrib import messages
 from django.views.generic import TemplateView
 from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
 from .models import Project, ProjectPage, VolunteerPage, GoTeam, PrayerPartner, GiveSection, VolunteerApplication
+from .models import BlogPost, YouTubeVideo, SpotifyPodcast, MediaPage, ContactSubmission, DonationPage, BankAccount
+from django.core.paginator import Paginator
 from .serializers import DemographicDataSerializer
 from .forms import SubscriberForm
 
@@ -202,13 +205,101 @@ def volunteer_apply(request):
 ###########################################
 
 ############## Media Page ###############
+def media_center(request):
+    # Get page content
+    page = MediaPage.objects.first()
+    
+    # Get latest blog posts
+    blog_posts = BlogPost.objects.all()[:6]
+    
+    # Get featured videos
+    videos = YouTubeVideo.objects.filter(is_featured=True)[:4]
+    
+    # Get latest podcasts
+    podcasts = SpotifyPodcast.objects.all()[:6]
+    
+    context = {
+        'page': page,
+        'blog_posts': blog_posts,
+        'videos': videos,
+        'podcasts': podcasts,
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/media.html', context)
 
+def blog_detail(request, slug):
+    post = get_object_or_404(BlogPost, slug=slug)
+    recent_posts = BlogPost.objects.exclude(id=post.id)[:3]
+    
+    context = {
+        'post': post,
+        'recent_posts': recent_posts,
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/blog_detail.html', context)
+
+def blog_list(request):
+    posts = BlogPost.objects.all()
+    paginator = Paginator(posts, 9)  # 9 posts per page
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+    
+    context = {
+        'posts': posts,
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/blog_list.html', context)
 
 
 ###########################################
 
 ############## Contact Page ###############
 
+def contact(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        message = request.POST.get('message')
 
+        # Save the submission
+        ContactSubmission.objects.create(name=name, email=email, message=message)
+
+        context = {
+            'logo': SiteLogo.objects.last(),
+        }
+        messages.success(request, 'Thank you for your message. We will get back to you soon.')
+        return redirect('contact')
+
+    return render(request, 'core/contact.html', context)
 
 ###########################################
+
+################# GIVE ####################
+
+def give(request):
+    context = {
+        'page': DonationPage.objects.first(),
+        'bank_accounts': BankAccount.objects.all(),
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/give.html', context)
+
+
+################## Get State Data ############
+def states_data(request):
+    # Aggregate data for each state
+    states_data = {}
+    states_with_data = DemographicData.objects.values('state').annotate(
+        total_villages=Count('village'),
+        total_population=Sum('total_village_population'),
+        total_converts=Sum('converts')
+    )
+    
+    for state in states_with_data:
+        states_data[state['state']] = {
+            'total_villages': state['total_villages'],
+            'total_population': state['total_population'] or 0,
+            'total_converts': state['total_converts'] or 0
+        }
+    
+    return JsonResponse(states_data)

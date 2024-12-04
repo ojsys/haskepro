@@ -1,0 +1,62 @@
+<!-- templates/core/blog_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<section class="blog-detail-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <article>
+                    <h1 class="mb-4">{{ post.title }}</h1>
+                    <p class="text-muted mb-4">By {{ post.author }} on {{ post.published_date|date:"M d, Y" }}</p>
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="img-fluid mb-4">
+                    {% endif %}
+                    <div class="content">
+                        {{ post.content|safe }}
+                    </div>
+                </article>
+                <hr>
+                <h3 class="mt-5">Recent Posts</h3>
+                <ul class="list-unstyled">
+                    {% for recent in recent_posts %}
+                    <li>
+                        <a href="{{ recent.get_absolute_url }}">{{ recent.title }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.content {
+    line-height: 1.8;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+hr {
+    margin: 40px 0;
+}
+
+.list-unstyled a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.list-unstyled a:hover {
+    text-decoration: underline;
+}
+</style>
+{% endblock %}
