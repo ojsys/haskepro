@@ -5,7 +5,8 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill
 from datetime import datetime
 from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, Subscriber, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
-
+from .models import Project, ProjectPage, VolunteerPage, GoTeam, GiveSection, PrayerPartner, VolunteerApplication
+from .models import BlogPost, YouTubeVideo, SpotifyPodcast, MediaPage
 
 
 
@@ -209,4 +210,68 @@ class BoardMemberAdmin(admin.ModelAdmin):
     list_display = ('name', 'position', 'order')
     list_editable = ('order',)
 
-####################
+#########  PROJECTs ###########
+
+@admin.register(ProjectPage)
+class ProjectPageAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        if self.model.objects.exists():
+            return False
+        return True
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ('title', 'order')
+    list_editable = ('order',)
+
+##############################
+
+############  Volunteer ################
+@admin.register(VolunteerPage)
+class VolunteerPageAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        if self.model.objects.exists():
+            return False
+        return True
+
+@admin.register(VolunteerApplication)
+class VolunteerApplicationAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'area_of_interest', 'created_at')
+    list_filter = ('area_of_interest', 'created_at')
+    search_fields = ('full_name', 'email')
+    readonly_fields = ('created_at',)
+
+
+admin.site.register(GoTeam)
+admin.site.register(PrayerPartner)
+admin.site.register(GiveSection)
+
+########################################
+
+################# MEDIA ADMIN #########
+
+@admin.register(BlogPost)
+class BlogPostAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'published_date', 'is_featured')
+    list_filter = ('is_featured', 'published_date')
+    search_fields = ('title', 'content')
+    prepopulated_fields = {'slug': ('title',)}
+
+@admin.register(YouTubeVideo)
+class YouTubeVideoAdmin(admin.ModelAdmin):
+    list_display = ('title', 'published_date', 'is_featured')
+    list_filter = ('is_featured', 'published_date')
+    search_fields = ('title', 'description')
+
+@admin.register(SpotifyPodcast)
+class SpotifyPodcastAdmin(admin.ModelAdmin):
+    list_display = ('title', 'published_date', 'duration', 'is_featured')
+    list_filter = ('is_featured', 'published_date')
+    search_fields = ('title', 'description')
+
+@admin.register(MediaPage)
+class MediaPageAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        if self.model.objects.exists():
+            return False
+        return True

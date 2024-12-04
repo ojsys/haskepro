@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Sum, Count
 from django.views.generic import TemplateView
 from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
+from .models import Project, ProjectPage, VolunteerPage, GoTeam, PrayerPartner, GiveSection, VolunteerApplication
 from .serializers import DemographicDataSerializer
 from .forms import SubscriberForm
 
@@ -148,3 +149,66 @@ def about(request):
         'logo': SiteLogo.objects.last(),
     }
     return render(request, 'core/about.html', context)
+
+###########################################
+
+############## PROJECTS Page ###############
+def projects(request):
+    context = {
+        'page': ProjectPage.objects.first(),
+        'projects': Project.objects.all(),
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/projects.html', context)
+
+
+###########################################
+############## Volunteer Page ###############
+def volunteer(request):
+    context = {
+        'page': VolunteerPage.objects.first(),
+        'go_team': GoTeam.objects.first(),
+        'prayer_partner': PrayerPartner.objects.first(),
+        'give_section': GiveSection.objects.first(),
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/volunteer.html', context)
+
+
+def volunteer_apply(request):
+    if request.method == 'POST':
+        try:
+            application = VolunteerApplication.objects.create(
+                full_name=request.POST.get('full_name'),
+                email=request.POST.get('email'),
+                phone=request.POST.get('phone'),
+                area_of_interest=request.POST.get('area_of_interest'),
+                skills=request.POST.get('skills'),
+                availability=request.POST.get('availability'),
+                message=request.POST.get('message', '')
+            )
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Thank you for your interest! We will contact you soon.'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'There was an error submitting your application. Please try again.'
+            })
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+
+
+###########################################
+
+############## Media Page ###############
+
+
+
+###########################################
+
+############## Contact Page ###############
+
+
+
+###########################################

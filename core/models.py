@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.text import slugify
+from django.urls import reverse
 
 class HeroSlide(models.Model):
     title = models.CharField(max_length=200)
@@ -195,6 +196,9 @@ class SiteLogo(models.Model):
     logo = models.ImageField(upload_to='logos/')
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        verbose_name_plural = "Site Logo"
+
     def __str__(self):
         return f"Logo updated on {self.updated_at}"
     
@@ -214,6 +218,7 @@ class AboutPage(models.Model):
     title = models.CharField(max_length=200, default="ABOUT US")
     header_image = models.ImageField(upload_to='about/', help_text="Header image for about page")
     introduction = models.TextField(help_text="Main introduction text")
+    ministry_goal = models.TextField(help_text="Main Goal", default="Our Goal")
 
     class Meta:
         verbose_name = "About Page"
@@ -226,6 +231,7 @@ class AboutMinistry(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     order = models.IntegerField(default=0)
+    image = models.ImageField(upload_to="about/min_img/", help_text="Ministry Image", null=True, blank=True)
     
     class Meta:
         ordering = ['order']
@@ -239,12 +245,16 @@ class MissionVision(models.Model):
     mission_text = models.TextField()
     vision_title = models.CharField(max_length=200, default="Our Vision")
     vision_text = models.TextField()
-    mission_image = models.ImageField(upload_to='about/', height_field="Image for Mission")
-    vision_image = models.ImageField(upload_to='about/', height_field="Image for Vision")
+    mission_image = models.ImageField(upload_to='about/', help_text="Image for Mission")
+    vision_image = models.ImageField(upload_to='about/', help_text="Image for Vision")
 
     class Meta:
         verbose_name = "Mission and Vision"
         verbose_name_plural = "Mission and Vision"
+
+    def __str__(self):
+        return f"{self.mission_title} - {self.vision_title}"
+    
 
 class Challenge(models.Model):
     title = models.CharField(max_length=200)
@@ -276,7 +286,179 @@ class BoardMember(models.Model):
     class Meta:
         ordering = ['order']
 
+
     def __str__(self):
         return self.name
     
 
+################## PROJECTS PAGE ###############
+class ProjectPage(models.Model):
+    title = models.CharField(max_length=200, default="HASKE PROJECTS")
+    header_image = models.ImageField(upload_to='projects/', help_text="Header image for projects page")
+    introduction = models.TextField(help_text="Introduction text below header")
+
+    class Meta:
+        verbose_name = "Project Page"
+        verbose_name_plural = "Project Page"
+    
+    def __str__(self):
+        return self.title
+
+class Project(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    image = models.ImageField(upload_to='projects/')
+    order = models.IntegerField(default=0)
+    
+    # You might want to add these fields if they're relevant
+    beneficiaries = models.IntegerField(default=0)
+    location = models.CharField(max_length=200, blank=True)
+    date = models.DateField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name_plural = "Projects"
+
+    def __str__(self):
+        return self.title
+
+################################################
+################## Volunteer ####################
+class VolunteerPage(models.Model):
+    title = models.CharField(max_length=200, default="VOLUNTEER")
+    header_image = models.ImageField(upload_to='volunteer/', help_text="Header image")
+    introduction = models.TextField()
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name = "Volunteer Page"
+        verbose_name_plural = "Volunteer Page"
+
+
+class VolunteerApplication(models.Model):
+    INTEREST_CHOICES = [
+        ('go_team', 'Go-Team Member'),
+        ('prayer', 'Prayer Partner'),
+        ('medical', 'Medical Outreach'),
+        ('education', 'Education Support'),
+        ('community', 'Community Development'),
+        ('other', 'Other'),
+    ]
+
+    full_name = models.CharField(max_length=200)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    area_of_interest = models.CharField(max_length=50, choices=INTEREST_CHOICES)
+    skills = models.TextField(help_text="Please list your relevant skills and experience")
+    availability = models.TextField(help_text="When are you available to volunteer?")
+    message = models.TextField(help_text="Additional message or questions", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.full_name} - {self.area_of_interest}"
+
+    class Meta:
+        ordering = ['-created_at']
+
+class GoTeam(models.Model):
+    title = models.CharField(max_length=200, default="Go-Teams")
+    description = models.TextField()
+    image = models.ImageField(upload_to='volunteer/teams/')
+    
+
+    def __str__(self):
+        return self.title
+
+class PrayerPartner(models.Model):
+    title = models.CharField(max_length=200, default="Prayer Partners")
+    description = models.TextField()
+    image = models.ImageField(upload_to='volunteer/prayer/')
+   
+    def __str__(self):
+        return self.title
+
+class GiveSection(models.Model):
+    title = models.CharField(max_length=200, default="Give")
+    description = models.TextField()
+    image = models.ImageField(upload_to='volunteer/give/')
+    
+
+    def __str__(self):
+        return self.title
+
+#################################################
+
+#################  MEDIA  #######################
+class BlogPost(models.Model):
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True, blank=True)
+    featured_image = models.ImageField(upload_to='blog/')
+    content = models.TextField()
+    excerpt = models.TextField(help_text="Short description for preview", max_length=300)
+    author = models.CharField(max_length=100)
+    published_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    is_featured = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-published_date']
+        
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+        
+    def get_absolute_url(self):
+        return reverse('blog-detail', kwargs={'slug': self.slug})
+    
+    def __str__(self):
+        return self.title
+
+class YouTubeVideo(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    video_id = models.CharField(max_length=20, help_text="YouTube video ID from URL")
+    published_date = models.DateTimeField()
+    is_featured = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-published_date']
+        
+    def __str__(self):
+        return self.title
+    
+    @property
+    def embed_url(self):
+        return f"https://www.youtube.com/embed/{self.video_id}"
+
+class SpotifyPodcast(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    spotify_id = models.CharField(max_length=100, help_text="Spotify episode/track ID")
+    published_date = models.DateTimeField()
+    duration = models.CharField(max_length=10, help_text="Duration in format MM:SS")
+    is_featured = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-published_date']
+        
+    def __str__(self):
+        return self.title
+
+class MediaPage(models.Model):
+    title = models.CharField(max_length=200, default="Media Center")
+    header_image = models.ImageField(upload_to='media/')
+    blog_section_title = models.CharField(max_length=200, default="Latest Blog Posts")
+    youtube_section_title = models.CharField(max_length=200, default="Video Messages")
+    podcast_section_title = models.CharField(max_length=200, default="Audio Messages")
+    
+    class Meta:
+        verbose_name = "Media Page"
+        verbose_name_plural = "Media Page"
+        
+    def __str__(self):
+        return self.title
+
+#################################################

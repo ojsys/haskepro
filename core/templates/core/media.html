@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="media-hero">
+    {% if page.header_image %}
+    <div class="hero-container">
+        <div class="hero-image" style="background-image: url('{{ page.header_image.url }}');">
+            <div class="overlay"></div>
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h1 class="hero-title">{{ page.title }}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Blog Posts Section -->
+<section class="blog-section py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-4">{{ page.blog_section_title }}</h2>
+        <div class="row">
+            {% for post in blog_posts %}
+            <div class="col-md-4 mb-4">
+                <div class="blog-card">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" class="card-img-top">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <p class="card-text">{{ post.excerpt }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ post.published_date|date:"M d, Y" }}</small>
+                            <a href="{{ post.get_absolute_url }}" class="btn btn-outline-primary btn-sm">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'blog-list' %}" class="btn btn-primary">View All Posts</a>
+        </div>
+    </div>
+</section>
+
+<!-- YouTube Videos Section -->
+<section class="video-section py-5 bg-light">
+    <div class="container">
+        <h2 class="section-title text-center mb-4">{{ page.youtube_section_title }}</h2>
+        <div class="row">
+            {% for video in videos %}
+            <div class="col-md-6 mb-4">
+                <div class="video-card">
+                    <div class="embed-responsive embed-responsive-16by9">
+                        <iframe class="embed-responsive-item" src="{{ video.embed_url }}" 
+                                allowfullscreen></iframe>
+                    </div>
+                    <div class="video-info mt-3">
+                        <h5>{{ video.title }}</h5>
+                        <p class="text-muted">{{ video.description|truncatewords:20 }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="https://www.youtube.com/channel/YOUR_CHANNEL_ID" target="_blank" 
+               class="btn btn-primary">Visit Our YouTube Channel</a>
+        </div>
+    </div>
+</section>
+
+<!-- Spotify Podcasts Section -->
+<section class="podcast-section py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-4">{{ page.podcast_section_title }}</h2>
+        <div class="row">
+            {% for podcast in podcasts %}
+            <div class="col-md-4 mb-4">
+                <div class="podcast-card">
+                    <iframe src="https://open.spotify.com/embed/episode/{{ podcast.spotify_id }}" 
+                            width="100%" height="152" frameborder="0" allowtransparency="true" 
+                            allow="encrypted-media"></iframe>
+                    <div class="podcast-info mt-2">
+                        <h5>{{ podcast.title }}</h5>
+                        <p class="text-muted">{{ podcast.duration }} • {{ podcast.published_date|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="https://open.spotify.com/show/YOUR_SHOW_ID" target="_blank" 
+               class="btn btn-primary">Listen on Spotify</a>
+        </div>
+    </div>
+</section>
+
+<style>
+/* Add your custom styles here */
+.blog-card {
+    height: 100%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.blog-card:hover {
+    transform: translateY(-5px);
+}
+
+.video-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.podcast-card {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.section-title {
+    position: relative;
+    padding-bottom: 15px;
+    margin-bottom: 30px;
+}
+
+.section-title:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 2px;
+    background-color: #007bff;
+}
+</style>
+{% endblock %}

@@ -8,7 +8,12 @@ urlpatterns = [
     path('', views.home, name='home'),
     # about
     path('about/', views.about, name='about'),
-    #path('<slug:slug>/', views.page_detail, name='page_detail'),
+    # projects
+    path('projects/', views.projects, name='projects'),
+    # volunteers
+    path('volunteer/', views.volunteer, name='volunteer'),
+    # volunteers Apply
+    path('volunteer/apply/', views.volunteer_apply, name='volunteer-apply'),
 
     path('api/demographics/<str:state_name>/', StateDemographicView.as_view(), name='state-demographics'),
     path('demographics-map/', DemographicsMapView.as_view(), name='demographics-map'),

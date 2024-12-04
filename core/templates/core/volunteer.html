@@ -1,0 +1,305 @@
+<!-- templates/core/volunteer.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="volunteer-hero" >
+    {% if page.header_image %}
+    <div class="hero-container">
+        <div class="hero-image" style="background-image: url('{{ page.header_image.url }}');">
+            <div class="overlay"></div>
+            <div class="container h-100">
+                <div class="row h-100 align-items-center">
+                    <div class="col-lg-8 mx-auto text-center">
+                        <h1 class="hero-title">{{ page.title }}</h1>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</section>
+
+<section>
+    <p class="hero-text text-black text-center">{{ page.introduction }}</p>
+</section>
+<!-- Go-Teams Section -->
+<section class="go-teams-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                {% if go_team.image %}
+                <img src="{{ go_team.image.url }}" alt="Go Teams" class="img-fluid rounded shadow">
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h2>{{ go_team.title }}</h2>
+                <p>{{ go_team.description }}</p>
+                <p class="team-members">{{ go_team.team_members }}</p>
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#volunteerModal">Join the Team</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Prayer Partners Section -->
+<section class="prayer-partners-section py-5 bg-light">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 order-md-2">
+                {% if prayer_partner.image %}
+                <img src="{{ prayer_partner.image.url }}" alt="Prayer Partners" class="img-fluid rounded shadow">
+                {% endif %}
+            </div>
+            <div class="col-md-6 order-md-1">
+                <h2>{{ prayer_partner.title }}</h2>
+                <p>{{ prayer_partner.description }}</p>
+                <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#volunteerModal">Join the Team</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Give Section -->
+<section class="give-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                {% if give_section.image %}
+                <img src="{{ give_section.image.url }}" alt="Give" class="img-fluid rounded shadow">
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h2>{{ give_section.title }}</h2>
+                <p>{{ give_section.description }}</p>
+                <a href="{{ give_section.donation_link }}" class="btn btn-primary">Will you partner as a Kingdom financier?</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Volunteer Application Modal -->
+<div class="modal fade" id="volunteerModal" tabindex="-1" aria-labelledby="volunteerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="volunteerModalLabel">Volunteer Application</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="volunteerForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="full_name" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="phone" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="area_of_interest" class="form-label">Area of Interest *</label>
+                            <select class="form-select" id="area_of_interest" name="area_of_interest" required>
+                                <option value="">Choose...</option>
+                                <option value="go_team">Go-Team Member</option>
+                                <option value="prayer">Prayer Partner</option>
+                                <option value="medical">Medical Outreach</option>
+                                <option value="education">Education Support</option>
+                                <option value="community">Community Development</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="skills" class="form-label">Relevant Skills and Experience *</label>
+                            <textarea class="form-control" id="skills" name="skills" rows="3" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="availability" class="form-label">Availability *</label>
+                            <textarea class="form-control" id="availability" name="availability" rows="2" required></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label for="message" class="form-label">Additional Message</label>
+                            <textarea class="form-control" id="message" name="message" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button type="submit" class="btn btn-primary">Submit Application</button>
+                    </div>
+                </form>
+                <div id="formMessage" class="alert mt-3" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.volunteer-hero {
+    position: relative;
+    height: 600px;
+    overflow: hidden;
+    
+}
+
+.hero-container {
+    height: 100%;
+    width: 100%;
+}
+
+.hero-image {
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.hero-title {
+    color: white;
+    font-size: 3.5rem;
+    font-weight: 700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+}
+
+.hero-text {
+    color: white;
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 2;
+}
+
+section {
+    padding: 80px 0;
+}
+
+section h2 {
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.btn-primary {
+    padding: 12px 30px;
+    border-radius: 30px;
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.team-members {
+    font-style: italic;
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+img {
+    transition: transform 0.3s ease;
+}
+
+img:hover {
+    transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-text {
+        font-size: 1rem;
+    }
+    
+    section {
+        padding: 40px 0;
+    }
+}
+</style>
+<style>
+    .modal-dialog {
+        max-width: 700px;
+    }
+    
+    .modal-content {
+        border-radius: 12px;
+    }
+    
+    .modal-header {
+        background-color: #f8f9fa;
+        border-radius: 12px 12px 0 0;
+    }
+    
+    .form-label {
+        font-weight: 500;
+    }
+    
+    .alert {
+        margin-bottom: 0;
+    }
+</style>
+
+<script>
+    document.getElementById('volunteerForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const form = this;
+        const messageDiv = document.getElementById('formMessage');
+        const submitButton = form.querySelector('button[type="submit"]');
+        const originalButtonText = submitButton.innerHTML;
+        
+        // Disable submit button and show loading state
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Submitting...';
+        
+        fetch('{% url "volunteer-apply" %}', {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            messageDiv.style.display = 'block';
+            messageDiv.className = `alert alert-${data.status === 'success' ? 'success' : 'danger'}`;
+            messageDiv.innerHTML = data.message;
+            
+            if (data.status === 'success') {
+                form.reset();
+                // Close modal after 2 seconds on success
+                setTimeout(() => {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('volunteerModal'));
+                    modal.hide();
+                    messageDiv.style.display = 'none';
+                }, 2000);
+            }
+        })
+        .catch(error => {
+            messageDiv.style.display = 'block';
+            messageDiv.className = 'alert alert-danger';
+            messageDiv.innerHTML = 'An error occurred. Please try again later.';
+        })
+        .finally(() => {
+            // Re-enable submit button and restore original text
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
+        });
+    });
+</script>
+{% endblock %}
