@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h3>Map Debug</h3>
+    <div id="map" style="height: 500px; width: 100%; border: 1px solid #ccc;"></div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+    console.log('Script starting...');
+
+    // Initialize the map
+    var map = L.map('map').setView([9.0820, 8.6753], 6);
+    console.log('Map initialized:', map);
+
+    // Add the tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    console.log('Tile layer added');
+
+    // Fetch GeoJSON data
+    console.log('Fetching GeoJSON...');
+    fetch("{% static 'js/nigeria_map.geojson' %}")
+        .then(response => {
+            console.log('Response received:', response.status);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('GeoJSON data loaded:', data);
+            L.geoJSON(data).addTo(map);
+            console.log('GeoJSON layer added to map');
+        })
+        .catch(error => {
+            console.error('Error loading GeoJSON:', error);
+            document.getElementById('map').innerHTML += '<div class="alert alert-danger">Error loading map data</div>';
+        });
+</script>
+{% endblock %}

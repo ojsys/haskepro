@@ -103,6 +103,29 @@ def state_detail(request, state_name):
     print(f"Number of detailed records: {detailed_data.count()}")
     return render(request, 'core/state_detail.html', context)
 
+
+def states_with_data(request):
+    # Query the database for state names and aggregated data
+    states_data = DemographicData.objects.values('state').annotate(
+        total_population=Sum('total_village_population'),
+        village_count=Count('village', distinct=True),
+        total_converts=Sum('converts')
+    )
+    
+    # Create a dictionary with state names and their data
+    states_dict = {}
+    for item in states_data:
+        state_name = item['state']
+        states_dict[state_name] = {
+            'total_population': item['total_population'],
+            'village_count': item['village_count'],
+            'total_converts': item['total_converts']
+        }
+    
+    return JsonResponse(states_dict)
+
+
+    
 ######################################
 def home(request):
     context = {
@@ -303,3 +326,10 @@ def states_data(request):
         }
     
     return JsonResponse(states_data)
+
+
+def map_view(request):
+    context = {
+        'logo': SiteLogo.objects.last(),
+    }
+    return render(request, 'core/map.html', context)

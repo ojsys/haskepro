@@ -28,10 +28,13 @@ urlpatterns = [
     path('demographics-map/', DemographicsMapView.as_view(), name='demographics-map'),
     path('api/state-data/', views.get_state_data, name='state-data'),
     path('api/state-data/<str:state_name>/', views.get_state_detail, name='state-detail'),
+    # getting states with data
+    path('api/states-with-data/', views.states_with_data, name='states_with_data'),
      
     path('state/<str:state_name>/', views.state_detail, name='state_detail'),
     # Subscribe
     path('subscribe/', views.subscribe, name='subscribe'),
+    path('map/', views.map_view, name='map'),
     
 
 
