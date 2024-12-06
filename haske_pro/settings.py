@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'tinymce',
     'core',
     'rest_framework',
+    'import_export',
 ]
 
 MIDDLEWARE = [

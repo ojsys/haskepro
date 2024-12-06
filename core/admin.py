@@ -7,7 +7,10 @@ from datetime import datetime
 from .models import HeroSlide, Statistics, Achievement, Ministry, MinistrySection, Gallery, DemographicData, SiteLogo, Subscriber, AboutPage, AboutMinistry, MissionVision, Challenge, BoardMember
 from .models import Project, ProjectPage, VolunteerPage, GoTeam, GiveSection, PrayerPartner, VolunteerApplication
 from .models import BlogPost, YouTubeVideo, SpotifyPodcast, MediaPage, DonationPage, BankAccount
-
+from import_export.admin import ImportExportModelAdmin
+from import_export.formats import base_formats
+import xlsxwriter
+from .resources import DemographicDataResource
 
 
 admin.site.register(SiteLogo)
@@ -62,7 +65,10 @@ class MinistrySectionAdmin(admin.ModelAdmin):
 
 
 @admin.register(DemographicData)
-class DemographicDataAdmin(admin.ModelAdmin):
+class DemographicDataAdmin(ImportExportModelAdmin):
+    resources_class = DemographicDataResource
+    formats = [base_formats.XLSX]
+
     list_display = ['state', 'lga', 'ward', 'village', 'total_village_population', 'converts']
     list_filter = ['state', 'lga']
     search_fields = ['state', 'lga', 'ward', 'village']
@@ -85,6 +91,46 @@ class DemographicDataAdmin(admin.ModelAdmin):
             'fields': ('film_attendance', 'people_group', 'practiced_religion')
         })
     )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('download-template/', 
+                 self.download_template, 
+                 name='demographic-data-template'),
+        ]
+        return custom_urls + urls
+
+    def download_template(self, request):
+        # Create the HttpResponse object with Excel header
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="demographic_data_template.xlsx"'
+
+        # Create the Excel workbook and add a worksheet
+        workbook = xlsxwriter.Workbook(response)
+        worksheet = workbook.add_worksheet()
+
+        # Add headers
+        headers = ['state', 'village', 'total_village_population', 'converts']
+        for col, header in enumerate(headers):
+            worksheet.write(0, col, header)
+
+        # Add some example data (optional)
+        example_data = [
+            ['Lagos', 'Village A', 1000, 50],
+            ['Abuja', 'Village B', 2000, 100],
+        ]
+        for row, data in enumerate(example_data, start=1):
+            for col, value in enumerate(data):
+                worksheet.write(row, col, value)
+
+        workbook.close()
+        return response
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context['show_template_download'] = True
+        return super().changelist_view(request, extra_context)
 
     # def get_urls(self):
     #     urls = super().get_urls()

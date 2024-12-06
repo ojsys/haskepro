@@ -8,4 +8,16 @@
             <i class="fas fa-file-excel"></i> Export All Data
         </a>
     </div>
+    
+{% endblock %}
+
+{% block object-tools-items %}
+    {% if show_template_download %}
+    <li>
+        <a href="{% url 'admin:demographic-data-template' %}" class="btn btn-high btn-success">
+            {% trans "Download Template" %}
+        </a>
+    </li>
+    {% endif %}
+    {{ block.super }}
 {% endblock %}
