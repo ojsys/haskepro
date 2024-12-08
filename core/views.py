@@ -279,6 +279,10 @@ def blog_list(request):
 ############## Contact Page ###############
 
 def contact(request):
+
+    context = {
+            'logo': SiteLogo.objects.last(),
+        }
     if request.method == 'POST':
         name = request.POST.get('name')
         email = request.POST.get('email')
@@ -287,9 +291,7 @@ def contact(request):
         # Save the submission
         ContactSubmission.objects.create(name=name, email=email, message=message)
 
-        context = {
-            'logo': SiteLogo.objects.last(),
-        }
+        
         messages.success(request, 'Thank you for your message. We will get back to you soon.')
         return redirect('contact')
 
