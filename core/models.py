@@ -164,22 +164,23 @@ class DemographicData(models.Model):
 
 
     state = models.CharField(max_length=50, choices=STATE_CHOICES)
-    lga = models.CharField(max_length=100, verbose_name="L.G.A")
-    ward = models.CharField(max_length=100)
-    village = models.CharField(max_length=100)
-    christian_population = models.IntegerField(verbose_name="Christian Population")
-    muslim_population = models.IntegerField(verbose_name="Muslim Population")
-    traditional_population = models.IntegerField(verbose_name="Traditional People Population")
-    converts = models.IntegerField()
-    total_village_population = models.IntegerField(verbose_name="Total Village Population")
-    film_attendance = models.IntegerField()
-    people_group = models.CharField(max_length=100)
-    practiced_religion = models.CharField(max_length=100)
+    lga = models.CharField(max_length=100, verbose_name="L.G.A", null=True, blank=True)
+    ward = models.CharField(max_length=100, null=True, blank=True)
+    village = models.CharField(max_length=100, null=True, blank=True)
+    christian_population = models.IntegerField(verbose_name="Christian Population", null=True, blank=True)
+    muslim_population = models.IntegerField(verbose_name="Muslim Population", null=True, blank=True)
+    traditional_population = models.IntegerField(verbose_name="Traditional People Population", null=True, blank=True)
+    converts = models.IntegerField(null=True, blank=True)
+    total_village_population = models.IntegerField(verbose_name="Total Village Population",null=True, blank=True)
+    film_attendance = models.IntegerField(null=True, blank=True)
+    people_group = models.CharField(max_length=100, null=True, blank=True)
+    practiced_religion = models.CharField(max_length=100, null=True, blank=True)
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True, blank=True)
 
     class Meta:
+        unique_together = ['state', 'lga', 'ward', 'village']
         verbose_name_plural = "Demographic Data"
         # You might want to add indexes for frequently queried fields
         indexes = [

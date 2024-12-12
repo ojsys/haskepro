@@ -11,6 +11,8 @@ from .models import BlogPost, YouTubeVideo, SpotifyPodcast, MediaPage, ContactSu
 from django.core.paginator import Paginator
 from .serializers import DemographicDataSerializer
 from .forms import SubscriberForm
+from django.core.exceptions import DatabaseError
+from django.http import HttpResponseServerError
 
 
 
@@ -75,34 +77,133 @@ def get_state_detail(request, state_name):
     })
 
 
-def state_detail(request, state_name):
+# def state_detail(request, state_name):
+#     import logging
+#     logger = logging.getLogger(__name__)
     
-    
-    # Get all data for this state
-    state_data = DemographicData.objects.filter(state=state_name)
-    
-    # Calculate summary with all required fields for charts
-    summary = {
-        'village_count': state_data.count(),
-        'total_population': state_data.aggregate(Sum('total_village_population'))['total_village_population__sum'] or 0,
-        'total_converts': state_data.aggregate(Sum('converts'))['converts__sum'] or 0,
-        'film_attendance': state_data.aggregate(Sum('film_attendance'))['film_attendance__sum'] or 0,
-        'total_christian': state_data.aggregate(Sum('christian_population'))['christian_population__sum'] or 0,
-        'total_muslim': state_data.aggregate(Sum('muslim_population'))['muslim_population__sum'] or 0,
-        'total_traditional': state_data.aggregate(Sum('traditional_population'))['traditional_population__sum'] or 0,
-    }
-    
-    detailed_data = DemographicData.objects.filter(state=state_name).order_by('lga', 'ward', 'village')
-    
-    context = {
-        'state_name': state_name,
-        'summary': summary,
-        'detailed_data': detailed_data,
-        'logo': SiteLogo.objects.last(),
-    }
-    print(f"Number of detailed records: {detailed_data.count()}")
-    return render(request, 'core/state_detail.html', context)
+#     try:
+#         # Debug point 1
+#         logger.info(f"Starting state_detail view for {state_name}")
+        
+#         # Get all data for this state
+#         state_data = DemographicData.objects.filter(state=state_name)
+#         print(f"Successfully retrieved state_data. Count: {state_data.count()}")
+        
+#         # Debug point 2: Test each aggregation separately
+#         try:
+#             village_count = state_data.count()
+#             print(f"Village count: {village_count}")
+            
+#             total_population = state_data.aggregate(Sum('total_village_population'))['total_village_population__sum'] or 0
+#             print(f"Total population: {total_population}")
+            
+#             # Continue with other aggregations...
+#             summary = {
+#                 'village_count': village_count,
+#                 'total_population': total_population,
+#                 'total_converts': state_data.aggregate(Sum('converts'))['converts__sum'] or 0,
+#                 'film_attendance': state_data.aggregate(Sum('film_attendance'))['film_attendance__sum'] or 0,
+#                 'total_christian': state_data.aggregate(Sum('christian_population'))['christian_population__sum'] or 0,
+#                 'total_muslim': state_data.aggregate(Sum('muslim_population'))['muslim_population__sum'] or 0,
+#                 'total_traditional': state_data.aggregate(Sum('traditional_population'))['traditional_population__sum'] or 0,
+#             }
+#         except Exception as e:
+#             print(f"Error during aggregation: {str(e)}")
+#             raise
+            
+#         # Debug point 3
+#         print("Successfully created summary")
+        
+#         detailed_data = DemographicData.objects.filter(state=state_name).order_by('lga', 'ward', 'village')
+#         print(f"Retrieved detailed data. Count: {detailed_data.count()}")
+        
+#         # Debug point 4
+#         logo = SiteLogo.objects.last()
+#         print("Retrieved logo")
+        
+#         context = {
+#             'state_name': state_name,
+#             'summary': summary,
+#             'detailed_data': detailed_data,
+#             'logo': logo,
+#         }
+        
+#         # Before rendering
+#         print("About to render template")
+#         return render(request, 'core/state_detail.html', context)
+        
+#     except Exception as e:
+#         print(f"Error in view: {type(e).__name__}, {str(e)}")
+#         # Log the full traceback
+#         import traceback
+#         print(traceback.format_exc())
+#         raise
 
+def state_detail(request, state_name):
+    try:
+        # Get all data for this state in a single query
+        with transaction.atomic():
+            state_data = DemographicData.objects.filter(state=state_name)
+            
+            # Perform all aggregations in a single query
+            aggregations = state_data.aggregate(
+                village_count=models.Count('id'),
+                total_population=Sum('total_village_population'),
+                total_converts=Sum('converts'),
+                film_attendance=Sum('film_attendance'),
+                total_christian=Sum('christian_population'),
+                total_muslim=Sum('muslim_population'),
+                total_traditional=Sum('traditional_population')
+            )
+
+            # Create summary with safe defaults
+            summary = {
+                'village_count': aggregations.get('village_count', 0),
+                'total_population': aggregations.get('total_population', 0) or 0,
+                'total_converts': aggregations.get('total_converts', 0) or 0,
+                'film_attendance': aggregations.get('film_attendance', 0) or 0,
+                'total_christian': aggregations.get('total_christian', 0) or 0,
+                'total_muslim': aggregations.get('total_muslim', 0) or 0,
+                'total_traditional': aggregations.get('total_traditional', 0) or 0,
+            }
+
+            # Get detailed data
+            detailed_data = state_data.order_by('lga', 'ward', 'village')
+
+            try:
+                logo = SiteLogo.objects.last()
+            except Exception:
+                logo = None
+
+            context = {
+                'state_name': state_name,
+                'summary': summary,
+                'detailed_data': detailed_data,
+                'logo': logo,
+            }
+
+            return render(request, 'core/state_detail.html', context)
+
+    except DatabaseError as e:
+        # Log the database error
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Database error in state_detail view: {str(e)}")
+        return HttpResponseServerError("Database error occurred. Please try again later.")
+
+    except OSError as e:
+        # Log the I/O error
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"I/O error in state_detail view: {str(e)}")
+        return HttpResponseServerError("System error occurred. Please try again later.")
+
+    except Exception as e:
+        # Log any other unexpected errors
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Unexpected error in state_detail view: {str(e)}")
+        return HttpResponseServerError("An unexpected error occurred. Please try again later.")
 
 def states_with_data(request):
     # Query the database for state names and aggregated data

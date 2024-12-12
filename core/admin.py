@@ -202,6 +202,16 @@ class DemographicDataAdmin(ImportExportModelAdmin):
     
     export_selected_state.short_description = "Export selected data to Excel"
 
+    def import_action(self, request, *args, **kwargs):
+        """
+        Custom import action to handle errors better
+        """
+        try:
+            return super().import_action(request, *args, **kwargs)
+        except Exception as e:
+            self.message_user(request, f"Import Error: {str(e)}", level=messages.ERROR)
+            return HttpResponseRedirect("../")
+
 
 @admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
